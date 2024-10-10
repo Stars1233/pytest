@@ -78,7 +78,7 @@ from _pytest.warning_types import PytestUnhandledCoroutineWarning
 
 
 if TYPE_CHECKING:
-    from typing import Self
+    from typing_extensions import Self
 
 
 def pytest_addoption(parser: Parser) -> None:
@@ -513,7 +513,7 @@ def importtestmodule(
         ) from e
     except ImportError as e:
         exc_info = ExceptionInfo.from_current()
-        if config.getoption("verbose") < 2:
+        if config.get_verbosity() < 2:
             exc_info.traceback = exc_info.traceback.filter(filter_traceback)
         exc_repr = (
             exc_info.getrepr(style="short")
@@ -924,7 +924,7 @@ class IdMaker:
         for idx, parameterset in enumerate(self.parametersets):
             if parameterset.id is not None:
                 # ID provided directly - pytest.param(..., id="...")
-                yield parameterset.id
+                yield _ascii_escaped_by_config(parameterset.id, self.config)
             elif self.ids and idx < len(self.ids) and self.ids[idx] is not None:
                 # ID provided in the IDs list - parametrize(..., ids=[...]).
                 yield self._idval_from_value_required(self.ids[idx], idx)
